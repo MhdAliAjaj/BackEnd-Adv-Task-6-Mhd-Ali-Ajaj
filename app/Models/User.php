@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -49,11 +50,29 @@ class User extends Authenticatable
             ->withPivot('role', 'contribution_hours', 'last_activity');
     }
 
-
     // استخدام hasManyThrough
 
     public function tasks()
-{
-    return $this->hasManyThrough(Task::class, Project::class);
-}
+    {
+        return $this->hasManyThrough(Task::class, Project::class);
+    }
+    public function filteredTasks($status = null, $priority = null)
+    {
+        return $this->tasks()
+            ->when($status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->when($priority, function ($query, $priority) {
+                return $query->where('priority', $priority);
+            });
+    }
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }

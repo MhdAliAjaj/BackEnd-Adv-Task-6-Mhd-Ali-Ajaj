@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('role', ['manager', 'developer', 'tester']);
-            $table->integer('contribution_hours');
+            $table->integer('contribution_hours')->default(0);
             $table->timestamp('last_activity')->nullable();
             $table->timestamps();
         });
